@@ -14,5 +14,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
 Route::resource('/karyawan', 'KaryawanController');
+Route::get('/karyawan/getkota/{nama_provinsi}', 'KaryawanController@getKota');
+Route::get('/karyawan/getkecamatan/{nama_city}', 'KaryawanController@getDistrict');
 Route::get('karyawan/word-export/{id}', 'KaryawanController@wordExport');

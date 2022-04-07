@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Karyawan;
+use App\{Provinsi, District, City, Subdistrict, Karyawan};
 use Illuminate\Http\Request;
 use File;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -17,7 +17,16 @@ class KaryawanController extends Controller
     public function index()
     {
         $users = Karyawan::get();
-        return view('karyawan.index', compact('users'));
+        $provinsi = Provinsi::select('id', 'name')->get();
+        return view('karyawan.index', compact('users', 'provinsi'));
+    }
+
+    public function getKota($nama_provinsi)
+    {   
+        $kota = City::join('reg_provinces', 'reg_provinces.id', '=', 'reg_regencies.province_id')->where('reg_provinces.name', '=', $nama_provinsi)->select('reg_regencies.name')->pluck('reg_regencies.name');
+        //$states = DB::table("states")->where("countries_id",$id)->pluck("name","id");
+        return json_encode($kota);
+
     }
 
     /**
@@ -40,38 +49,43 @@ class KaryawanController extends Controller
     {
         // dd($request);
         $request->validate([
-            'name' => 'required',
-            'gender' => 'required',
+            'firstname' => 'required',
+            'lastname' => 'required',
             'no_hp' => 'required', 
-            'photo_profile' => 'required|mimes:png,jpg,jpeg,svg', 
-            'email' => 'required', 
-            'salary' => 'required', 
+            'ktp_photo' => 'required|mimes:png,jpg,jpeg,svg', 
+            'ktpnumber' => 'required',
         ],
         [
-            'name.required' => 'Nama wajib di isi!',
-            'gender.required' => 'Lokasi wajib di isi!',
+            'firstname.required' => 'First Name wajib di isi!',
+            'lastname.required' => 'Last Name wajib di isi!',
             'no_hp.required' => 'No HP wajib di isi!',
-            'photo_profile.required' => 'Foto Profil wajib di isi!',
-            'photo_profile.mimes' => 'Foto Profil wajib berformat JPG, JPEG, dan PNG!', 
-            'email.required' => 'Email wajib di isi!', 
-            'salary.required' => 'Salary wajib di isi!', 
+            'ktpnumber.required' => 'No KTP wajib di isi!',
+            'ktp_photo.required' => 'Foto Profil wajib di isi!',
+            'ktp_photo.mimes' => 'Foto Profil wajib berformat JPG, JPEG, dan PNG!',
         ]);
 
-        $file = $request->file('photo_profile');
+        $file = $request->file('ktp_photo');
         $namafile = "profile_".time()."_".$file->getClientOriginalName();
         $tujuan_upload = 'upload/profile';
         $file->move($tujuan_upload,$namafile);
 
         Karyawan::Create([
-            'name' => $request->name,
-            'photo_profile' => $namafile,
-            'gender' => $request->gender,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'ktp_photo' => $namafile,
+            'birth' => $request->birth,
             'no_hp' => $request->no_hp,
             'email' => $request->email,
-            'salary' => $request->salary,
+            'province' => $request->province,
+            'city' => $request->city,
+            'street' => $request->street,
+            'zipcode' => $request->zipcode,
+            'ktpnumber' => $request->ktpnumber,
+            'currentposition' => $request->currentposition,
+            'banknumber' => $request->banknumber,
         ]);  
 
-        return redirect()->back()->with('status', "berhasil menambah data Karyawan baru.");
+        return redirect()->back()->with('status', "berhasil menambah data Employee.");
     }
 
     /**
@@ -108,42 +122,46 @@ class KaryawanController extends Controller
     {
         // dd($karyawan);
         $request->validate([
-            'name' => 'required',
-            'gender' => 'required',
+            'firstname' => 'required',
+            'lastname' => 'required',
             'no_hp' => 'required', 
-            'email' => 'required', 
-            'salary' => 'required', 
+            'ktpnumber' => 'required',
         ],
         [
-            'name.required' => 'Nama wajib di isi!',
-            'gender.required' => 'Lokasi wajib di isi!',
+            'firstname.required' => 'First Name wajib di isi!',
+            'lastname.required' => 'Last Name wajib di isi!',
             'no_hp.required' => 'No HP wajib di isi!',
-            'photo_profile.mimes' => 'Foto Profil wajib berformat JPG, JPEG, dan PNG!', 
-            'email.required' => 'Email wajib di isi!', 
-            'salary.required' => 'Salary wajib di isi!', 
+            'ktpnumber.required' => 'No KTP wajib di isi!',
         ]);
 
-        if($request->file('photo_profile') != null) {
-            File::delete(public_path('upload/profile/'.$karyawan->photo_profile));
-            $file = $request->file('photo_profile');
+        if($request->file('ktp_photo') != null) {
+            File::delete(public_path('upload/profile/'.$karyawan->ktp_photo));
+            $file = $request->file('ktp_photo');
             $namafile = "profile_".time()."_".$file->getClientOriginalName();
             $tujuan_upload = 'upload/profile';
             $file->move($tujuan_upload,$namafile);
         }
         else{
-            $namafile = $karyawan->photo_profile;
+            $namafile = $karyawan->ktp_photo;
         }
 
         Karyawan::whereId($karyawan->id)->update([
-            'name' => $request->name,
-            'photo_profile' => $namafile,
-            'gender' => $request->gender,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'ktp_photo' => $namafile,
+            'birth' => $request->birth,
             'no_hp' => $request->no_hp,
             'email' => $request->email,
-            'salary' => $request->salary,
+            'province' => $request->province,
+            'city' => $request->city,
+            'street' => $request->street,
+            'zipcode' => $request->zipcode,
+            'ktpnumber' => $request->ktpnumber,
+            'currentposition' => $request->currentposition,
+            'banknumber' => $request->banknumber,
         ]);  
 
-        return redirect('/karyawan')->with('status', "berhasil mengedit data Karyawan baru.");
+        return redirect('/karyawan')->with('status', "berhasil mengedit data Employee.");
     }
 
     /**
@@ -154,8 +172,8 @@ class KaryawanController extends Controller
      */
     public function destroy(Karyawan $karyawan)
     {
-        if($karyawan->photo_profile!=null) {
-            File::delete(public_path('upload/profile/'.$karyawan->photo_profile));
+        if($karyawan->ktp_photo!=null) {
+            File::delete(public_path('upload/profile/'.$karyawan->ktp_photo));
         }
         return Karyawan::destroy($karyawan->id);
     }

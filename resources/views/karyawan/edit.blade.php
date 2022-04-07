@@ -68,7 +68,7 @@
                                 <div class="col-12 col-sm-6">
                                     <div class="form-group">
                                     <label for="photo_profile">Foto Profil</label>
-                                    <input name="photo_profile" id="photo_pforile" class="form-control" title="Foto" type="file" placeholder="Foto">
+                                    <input name="photo_profile" id="photo_profile" class="form-control" title="Foto" type="file" placeholder="Foto">
                                     <small>Silakan upload jika ingin mengganti Foto.</small>
                                     </div>
                                 </div>

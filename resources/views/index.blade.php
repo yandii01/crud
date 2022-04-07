@@ -48,23 +48,48 @@
             <table class="table table-bordered mt-5">
                 <thead>
                 <tr>
-                    <th scope="col">#</th>
+                    <th scope="col">No</th>
                     <th scope="col">Name</th>
+                    <th scope="col">Jenis Kelamin</th>
+                    <th scope="col">No HP</th>
                     <th scope="col">Email</th>
-                    <th scope="col">Address</th>
+                    <th scope="col">Salary</th>
+                    <th scope="col">Foto Profil</th>
+                    <th scope="col">Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($users as $user)
+                @php $no = 1; @endphp
+                @forelse($users as $user)
                     <tr>
-                        <th scope="row">{{ $user->id }}</th>
+                        <td class="text-center">{{ number_format($no++) }}</td>
                         <td>{{ $user->name }}</td>
+                        @if($user->gender == 'l')
+                        <td>Laki-Laki</td>
+                        @else
+                        <td>Perempuan</td>
+                        @endif
+                        <td>{{ $user->no_hp }}</td>
                         <td>{{ $user->email }}</td>
+                        <td>Rp {{ $user->salary }}</td>
+                        <td><div class="image">
+                            <img src="{{asset('upload/profile/'.$user->photo_profile)}}" width="200px">
+                        </div>
+                        </td>
                         <td>
-                            <a href="{{ url('users/' . $user->id) }}" class="btn btn-sm btn-warning">View</a>
+                            <a href="{{ url('karyawan/word-export/' . $user->id) }}" class="btn btn-sm btn-primary">Export Word</a><br>
+                            <a href="{{url('/karyawan/'.$user->id.'/edit')}}" class="btn btn-secondary">Edit<i class="fa fa-pen"></i>
+                            </a><br>
+                            <a href="javascript:void(0)" class="btn btn-danger" type="button" onclick="hapusKaryawan({{$user->id}})">
+                                <i class="fa fa-trash">Delete</i>
+                            </a>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="8" class="text-center">Belum ada data</td>
+                    <tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
@@ -75,7 +100,7 @@
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form method="post" action="/" autocomplete="off" id="formId" enctype="multipart/form-data">
+            <form method="post" action="/index" autocomplete="off" id="formId" enctype="multipart/form-data">
                 {{csrf_field()}}
                 @if(count($errors) > 0)
                 <div class="alert alert-danger">
@@ -114,7 +139,7 @@
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input name="email" id="email" class="form-control" title="email"
-                                type="text" placeholder="Email"
+                                type="email" placeholder="Email"
                             required>
                         </div>
                         <div class="form-group">
@@ -151,5 +176,48 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    function hapusKaryawan(id){
+        event.preventDefault();
+        swal({
+            title: 'Anda akan menghapus data?',
+            text: 'Data akan dihapus secara permanen!',
+            icon: 'warning',
+            buttons: ["Cancel", "Yes!"],
+        }).then(function(value) {
+            if (value) {
+                console.log(value);
+                $.ajax({
+                    url: '/index/'+id,
+                    data : {
+                        "_token" : "{{csrf_token()}}"
+                    },
+                    type: 'delete',
+                    dataType: 'json',
+                    success: function(result){
+                        console.log(result);
+                        if(result){
+                            swal({ 
+                                title: "Berhasil!", 
+                                text: "Penghapusan berhasil dilakukan !.", 
+                                icon: "success" 
+                            }).then(function() {
+                                window.location = "/index";
+                            });
+
+                        }else{
+                            swal({ title: "Gagal!", text: result.message, icon: "error" })
+                        }
+                    },
+                    error: function(err){
+                        swal({ title: "Gagal!", text: "Terjadi kesalahan saat menghapus data !", icon: "error" })
+                    }
+                })
+            }
+        });
+    }
+</script>
 </body>
 </html>

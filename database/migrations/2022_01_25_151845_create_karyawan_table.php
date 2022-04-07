@@ -15,12 +15,19 @@ class CreateKaryawanTable extends Migration
     {
         Schema::create('karyawan', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->enum('gender', ['l','p'])->nullable();
+            $table->string('firstname');
+            $table->string('lastname');
+            $table->date('birth')->nullable();
             $table->string('no_hp', 16)->nullable();
-            $table->string('email')->unique();
-            $table->integer('salary');
-            $table->string('photo_profile')->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->string('province')->nullable();
+            $table->string('city')->nullable();
+            $table->string('street')->nullable();
+            $table->string('zipcode')->nullable();
+            $table->string('ktpnumber');
+            $table->string('currentposition')->nullable();
+            $table->string('banknumber')->nullable();
+            $table->string('ktp_photo');
             $table->timestamps();
         });
     }

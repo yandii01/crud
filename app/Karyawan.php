@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Karyawan extends Model
 {
     protected $table = 'karyawan';
-    protected $fillable = ['name', 'gender', 'no_hp', 'email', 'salary', 'photo_profile'];
+    protected $fillable = ['firstname','lastname','province','city','birth','street','currentposition',
+    'no_hp', 'email', 'zipcode','ktpnumber','banknumber', 'ktp_photo'];
 }
